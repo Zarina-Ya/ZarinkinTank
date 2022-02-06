@@ -27,28 +27,31 @@ protected:
 		UStaticMeshComponent* BodyMesh;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = " Components")
 		UStaticMeshComponent* TurretMesh;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		UCameraComponent* Camera;
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		USpringArmComponent* SpringArm;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 		float MoveSpeed = 100.f;
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 		float RotationSpeed = 100.f;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
+		float RotationSmootheness = 0.1f;// 10% необходимо для интерполяции -- гладкость поворотов
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-		UCameraComponent* Camera;
-
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
-		USpringArmComponent* SpringArm;
-
-	float TargetForwardAxisValue;
-	float TargetRightAxisValue;
-
+	
+	float TargetForwardAxisValue = 0.f;
+	float TargetRotateAxisValue = 0.f;
+	float CurrentRotateAxisValue = 0.f;// переменная для сглаживания 
 public:
 	// Конструктор нашего объекта и Инициализация
 	ATankPawn();
 
 	UFUNCTION()
 		void MoveForward(float AxisValue);
+
 	UFUNCTION()
-		void MoveRight(float AxisValue);
+		void RotateRight(float AxisValue);
 
 protected:
 	//  начало работы 
