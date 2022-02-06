@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
+#include "TankPlayerController.h"
 #include "TankPawn.generated.h"
 
 class UStaticMeshComponent;
@@ -39,6 +40,9 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 		float RotationSmootheness = 0.1f;// 10% необходимо дл€ интерпол€ции -- гладкость поворотов
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
+		float TurretRotationSmootheness = 0.5f;
+
 	
 	float TargetForwardAxisValue = 0.f;
 	float TargetRotateAxisValue = 0.f;
@@ -52,6 +56,9 @@ public:
 
 	UFUNCTION()
 		void RotateRight(float AxisValue);
+
+	UPROPERTY()
+		ATankPlayerController* TankController;
 
 protected:
 	//  начало работы 

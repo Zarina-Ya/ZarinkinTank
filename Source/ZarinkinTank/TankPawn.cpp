@@ -7,6 +7,7 @@
 #include "Camera/CameraComponent.h"
 #include "Math/UnrealMathUtility.h"
 #include "ZarinkinTank.h"
+#include <Runtime/Engine/Classes/Kismet/KismetMathLibrary.h>
 
 ATankPawn::ATankPawn()
 {
@@ -47,6 +48,8 @@ void ATankPawn::RotateRight(float AxisValue)
 void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
+
+	TankController = Cast< ATankPlayerController>(GetController());
 	
 }
 
@@ -54,26 +57,35 @@ void ATankPawn::BeginPlay()
 void ATankPawn::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	// Tank Movement 
 	FVector currentLocation = GetActorLocation();// получим текущее положение актора в мире
 	FVector forwardVector = GetActorForwardVector();// ѕолучим направление танка вперед в виде вектора
 	FVector movePosition = currentLocation + forwardVector * TargetForwardAxisValue * MoveSpeed * DeltaTime;// ѕ–ибавл€ем к нашей текущей позиции смещение 
 	SetActorLocation(movePosition, true);
 
+	// Tank Rotation 
 	CurrentRotateAxisValue = FMath::Lerp(CurrentRotateAxisValue, TargetRotateAxisValue, RotationSmootheness);
-
-
 	UE_LOG(LogCustom, Verbose, TEXT("CurrentRotateAxisValue = %f, TargetRotateAxisValue = %f"), CurrentRotateAxisValue, TargetRotateAxisValue);
 	//CurrentRotateAxisValue = Math::Lerp( )
 	FRotator currentRotation = GetActorRotation();// изначальеое положение 
 	float YawRotation = CurrentRotateAxisValue * RotationSpeed * DeltaTime;// расчет поворота 
 	YawRotation += currentRotation.Yaw;// прибавл€ем к новым рассчетам страое положение 
-
 	FRotator newRotation = FRotator(0.f, YawRotation, 0.f);
-
 	SetActorRotation(newRotation);
 	
-	//CurrentRotateAxisValue = FMath::Lerp(CurrentRotateAxisValue, TargetRotateAxisValue, RotationSmootheness);
+	//Turret Rotation
+	if (TankController) {
+		FVector MousePose = TankController->GetMousePose();// получаем из контроллера положение мыши // Ќаправление нам не нужно, поэтому мы в локальную переменную mouseDirection получаем значение и его больше не используем.
+
+		FRotator TargetRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), MousePose);// дл€ того, чтобы посчитать поворот до позциии мыши 
+		FRotator CurrentRotation = TurretMesh->GetComponentRotation();
+		TargetRotation.Pitch = CurrentRotation.Pitch;// ќ—таетс€ неизменным так как мы вращем только на оси Z
+		TargetRotation.Roll = CurrentRotation.Roll;
+		TurretMesh->SetWorldRotation(FMath::Lerp(CurrentRotation, TargetRotation, TurretRotationSmootheness));
+	}
+	
+
+
 }
 
 
