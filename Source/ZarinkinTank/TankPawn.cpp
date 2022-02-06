@@ -5,6 +5,8 @@
 #include "Components/StaticMeshComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
+#include "Math/UnrealMathUtility.h"
+#include "ZarinkinTank.h"
 
 ATankPawn::ATankPawn()
 {
@@ -34,9 +36,11 @@ void ATankPawn::MoveForward(float AxisValue)
 	TargetForwardAxisValue = AxisValue;
 }
 
-void ATankPawn::MoveRight(float AxisValue)
+
+
+void ATankPawn::RotateRight(float AxisValue)
 {
-	TargetRightAxisValue = AxisValue;
+	TargetRotateAxisValue = AxisValue;
 }
 
 // Called when the game starts or when spawned
@@ -53,13 +57,23 @@ void ATankPawn::Tick(float DeltaTime)
 
 	FVector currentLocation = GetActorLocation();// получим текущее положение актора в мире
 	FVector forwardVector = GetActorForwardVector();// Получим направление танка вперед в виде вектора
-	FVector movePosition = currentLocation + forwardVector * MoveSpeed * TargetForwardAxisValue * DeltaTime;// ПРибавляем к нашей текущей позиции смещение 
+	FVector movePosition = currentLocation + forwardVector * TargetForwardAxisValue * MoveSpeed * DeltaTime;// ПРибавляем к нашей текущей позиции смещение 
 	SetActorLocation(movePosition, true);
 
-	FVector currentLocationForRight = GetActorLocation();// получим текущее положение актора в мире
-	FVector rightVector = GetActorRightVector();// получим напровление танка в сторону
-	FVector moveRightPosition = currentLocationForRight + rightVector * MoveSpeed * TargetRightAxisValue * DeltaTime;
-	SetActorLocation(moveRightPosition, true);
+	CurrentRotateAxisValue = FMath::Lerp(CurrentRotateAxisValue, TargetRotateAxisValue, RotationSmootheness);
+
+
+	UE_LOG(LogCustom, Verbose, TEXT("CurrentRotateAxisValue = %f, TargetRotateAxisValue = %f"), CurrentRotateAxisValue, TargetRotateAxisValue);
+	//CurrentRotateAxisValue = Math::Lerp( )
+	FRotator currentRotation = GetActorRotation();// изначальеое положение 
+	float YawRotation = CurrentRotateAxisValue * RotationSpeed * DeltaTime;// расчет поворота 
+	YawRotation += currentRotation.Yaw;// прибавляем к новым рассчетам страое положение 
+
+	FRotator newRotation = FRotator(0.f, YawRotation, 0.f);
+
+	SetActorRotation(newRotation);
+	
+	//CurrentRotateAxisValue = FMath::Lerp(CurrentRotateAxisValue, TargetRotateAxisValue, RotationSmootheness);
 }
 
 

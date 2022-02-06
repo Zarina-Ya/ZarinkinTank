@@ -18,14 +18,16 @@ class ZARINKINTANK_API ATankPlayerController : public APlayerController
 protected:
 	UPROPERTY()
 		ATankPawn* TankPawn;
-
+	UPROPERTY()
+		FVector MousePose;
 public:
 	ATankPlayerController();
 
-
+	FVector GetMousePose(){return MousePose;}
 protected:
 	virtual void BeginPlay() override;
 	virtual void SetupInputComponent() override;
+	virtual void Tick(float DeltaTime) override;
 	void MoveForward(float AxisValue);
-	void MoveRight(float AxisValue);
+	void RotateRight(float AxisValue);
 };
