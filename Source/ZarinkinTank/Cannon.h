@@ -35,11 +35,15 @@ protected:
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Fire params")
 		ECannonType Type = ECannonType::Fireprojectile;
+
+	bool bReadyToFire = false;
+
+	FTimerHandle RealoadTimerHendle;
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	virtual void EndPlay(const EEndPlayReason::Type EndPlayReason)override;
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
-
+	void Fire();
+	void Reload();
+	bool IsReadyToFire();
 };
