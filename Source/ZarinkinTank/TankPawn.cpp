@@ -8,6 +8,7 @@
 #include "Math/UnrealMathUtility.h"
 #include "ZarinkinTank.h"
 #include <Runtime/Engine/Classes/Kismet/KismetMathLibrary.h>
+#include "Cannon.h"
 
 ATankPawn::ATankPawn()
 {
@@ -29,7 +30,8 @@ ATankPawn::ATankPawn()
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(SpringArm);
 
-
+	CannonSetupPoint = CreateDefaultSubobject<UArrowComponent>(TEXT("Setup Point"));
+	CannonSetupPoint->AttachToComponent(TurretMesh, FAttachmentTransformRules::KeepRelativeTransform);// устанавливает положение относительно предыдущего родителя
 }
 
 void ATankPawn::MoveForward(float AxisValue)
@@ -44,13 +46,35 @@ void ATankPawn::RotateRight(float AxisValue)
 	TargetRotateAxisValue = AxisValue;
 }
 
+void ATankPawn::Fire()
+{
+	if (Cannon) {
+		Cannon->Fire();
+	}
+	
+}
+
 // Called when the game starts or when spawned
 void ATankPawn::BeginPlay()
 {
 	Super::BeginPlay();
 
 	TankController = Cast< ATankPlayerController>(GetController());
-	
+	SetupCannon();//создание пушки 
+}
+
+void ATankPawn::SetupCannon()
+{
+	if (Cannon) {
+		Cannon->Destroy();
+		Cannon = nullptr;
+	}
+	FActorSpawnParameters Params;// структура параментров необходимая для метода SpawnActor
+	Params.Instigator = this;// который несет ответственность за ущерб, нанесенный порожденным Актером.
+	Params.Owner = this;//Актер, который породил этого Актера.
+
+	Cannon = GetWorld()->SpawnActor<ACannon>(CannonClass, Params);
+	Cannon->AttachToComponent(CannonSetupPoint, FAttachmentTransformRules::SnapToTargetNotIncludingScale);// прикрепляется на указанное место , но не повторяет размером родителя
 }
 
 // Called every frame

@@ -30,4 +30,5 @@ protected:
 	virtual void Tick(float DeltaTime) override;
 	void MoveForward(float AxisValue);
 	void RotateRight(float AxisValue);
+	void Fire();
 };

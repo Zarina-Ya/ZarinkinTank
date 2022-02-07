@@ -5,11 +5,15 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Pawn.h"
 #include "TankPlayerController.h"
+#include "Cannon.h"
+#include "Components/ArrowComponent.h"
 #include "TankPawn.generated.h"
 
 class UStaticMeshComponent;
 class UCameraComponent;
 class USpringArmComponent;
+class UArrowComponent;
+
 UCLASS()
 class ZARINKINTANK_API ATankPawn : public APawn
 {
@@ -32,6 +36,11 @@ protected:
 		UCameraComponent* Camera;
 	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
 		USpringArmComponent* SpringArm;
+
+	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "Components")
+		UArrowComponent* CannonSetupPoint; // позици€ пушки 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Turret|Cannon")
+		TSubclassOf<ACannon> CannonClass;// необходимо дл€ перечислени€
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Movement|Speed")
 		float MoveSpeed = 100.f;
@@ -57,16 +66,22 @@ public:
 	UFUNCTION()
 		void RotateRight(float AxisValue);
 
-	UPROPERTY()
-		ATankPlayerController* TankController;
+	UFUNCTION()
+		void Fire();// ¬ызываетс€ из контроллера
+
 
 protected:
 	//  начало работы 
 	virtual void BeginPlay() override;
 
+	void SetupCannon();// создавать новую пушку и уничтожать старую.
+
 public:	
 	// ќтрисовка в самой игре 
 	virtual void Tick(float DeltaTime) override;
 
-
+	UPROPERTY()
+		ATankPlayerController* TankController;
+	UPROPERTY()
+		ACannon* Cannon;
 };
